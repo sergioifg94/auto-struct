@@ -2,6 +2,7 @@ package env
 
 import (
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -11,8 +12,10 @@ type innerTestType struct {
 }
 
 type testType struct {
-	Value1     string
-	InnerValue innerTestType
+	SliceValue  []string
+	SliceStruct []innerTestType
+	Value1      string
+	InnerValue  innerTestType
 }
 
 func Test_StructFromEnv(t *testing.T) {
@@ -21,6 +24,13 @@ func Test_StructFromEnv(t *testing.T) {
 	os.Setenv("testType_Value1", "hello")
 	os.Setenv("testType_InnerValue_Value2", "12")
 	os.Setenv("testType_InnerValue_Value3", "true")
+	os.Setenv("testType_Value1", "hello")
+	os.Setenv("testType_InnerValue_Value2", "12")
+	os.Setenv("testType_InnerValue_Value3", "true")
+	os.Setenv("testType_SliceValue_0", "foo")
+	os.Setenv("testType_SliceValue_1", "bar")
+	os.Setenv("testType_SliceStruct_0_Value2", "45")
+	os.Setenv("testType_SliceStruct_0_Value3", "true")
 
 	err := StructFromEnv(result, "testType", "_")
 
@@ -28,15 +38,22 @@ func Test_StructFromEnv(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if result.Value1 != "hello" {
-		t.Fatalf("Expected testType.Value1 to be \"hello\", got %s", result.Value1)
+	expected := testType{
+		Value1: "hello",
+		InnerValue: innerTestType{
+			Value2: 12,
+			Value3: true,
+		},
+		SliceValue: []string{"foo", "bar"},
+		SliceStruct: []innerTestType{
+			innerTestType{
+				Value2: 45,
+				Value3: true,
+			},
+		},
 	}
-	if result.InnerValue.Value2 != 12 {
-		t.Fatalf("Expected testType.InnerValue.Value2 to be 12, got %d",
-			result.InnerValue.Value2)
-	}
-	if result.InnerValue.Value3 != true {
-		t.Fatalf("Expected testType.InnerValue.Value3 to be true, got %v",
-			result.InnerValue.Value3)
+
+	if !reflect.DeepEqual(expected, *result) {
+		t.Fatalf("Unexpected result. Expected %#v, got %#v", expected, *result)
 	}
 }

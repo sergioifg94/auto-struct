@@ -10,6 +10,16 @@ func StructFromMap(placeholder interface{}, name, levelSeparator string, source 
 			value, ok := source[key]
 			return value, ok, nil
 		},
+
+		AnyKey: func(predicate func(string) bool) (bool, error) {
+			for key := range source {
+				if predicate(key) {
+					return true, nil
+				}
+			}
+
+			return false, nil
+		},
 	}
 
 	return generic.Struct(placeholder, name, mapAccess, levelSeparator)

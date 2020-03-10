@@ -8,4 +8,8 @@ type KeyValueRetrieval struct {
 	// was an error retrieving the value, return the error as the third
 	// value
 	Get func(key string) (string, bool, error)
+
+	// AnyKey checks if there's at least one key in the collection that
+	// satisfies a given predicate
+	AnyKey func(predicate func(string) bool) (bool, error)
 }
