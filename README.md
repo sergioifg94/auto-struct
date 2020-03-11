@@ -49,5 +49,5 @@ go test -v ./...
 ## TODO
 
 - [x] Add support for slices
-- [ ] Add support for `map[string]xxxx`
+- [x] Add support for `map[string]xxxx`
 - [ ] Add functionality to write struct to key value collection

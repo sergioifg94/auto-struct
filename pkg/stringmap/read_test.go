@@ -15,6 +15,8 @@ type testType struct {
 	SliceStruct []innerTestType
 	Value1      string
 	InnerValue  innerTestType
+	MapValue    map[string]int64
+	MapStruct   map[string]innerTestType
 }
 
 func Test_StructFromMap(t *testing.T) {
@@ -28,6 +30,13 @@ func Test_StructFromMap(t *testing.T) {
 		"testType.SliceValue.1":         "bar",
 		"testType.SliceStruct.0.Value2": "45",
 		"testType.SliceStruct.0.Value3": "true",
+		"testType.SliceStruct.1.Value2": "48",
+		"testType.SliceStruct.1.Value3": "true",
+		"testType.MapValue.anything":    "15",
+		"testType.MapStruct.12.Value2":  "12",
+		"testType.MapStruct.12.Value3":  "true",
+		"testType.MapStruct.foo.Value2": "2",
+		"testType.MapStruct.foo.Value3": "true",
 	})
 
 	if err != nil {
@@ -44,6 +53,23 @@ func Test_StructFromMap(t *testing.T) {
 		SliceStruct: []innerTestType{
 			innerTestType{
 				Value2: 45,
+				Value3: true,
+			},
+			innerTestType{
+				Value2: 48,
+				Value3: true,
+			},
+		},
+		MapValue: map[string]int64{
+			"anything": 15,
+		},
+		MapStruct: map[string]innerTestType{
+			"12": innerTestType{
+				Value2: 12,
+				Value3: true,
+			},
+			"foo": innerTestType{
+				Value2: 2,
 				Value3: true,
 			},
 		},

@@ -12,4 +12,7 @@ type KeyValueRetrieval struct {
 	// AnyKey checks if there's at least one key in the collection that
 	// satisfies a given predicate
 	AnyKey func(predicate func(string) bool) (bool, error)
+
+	// FilterKeys creates a slice of keys that satisfy a given predicate
+	FilterKeys func(predicate func(string) bool) ([]string, error)
 }

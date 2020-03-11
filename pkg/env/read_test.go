@@ -16,6 +16,8 @@ type testType struct {
 	SliceStruct []innerTestType
 	Value1      string
 	InnerValue  innerTestType
+	MapValue    map[string]int64
+	MapStruct   map[string]innerTestType
 }
 
 func Test_StructFromEnv(t *testing.T) {
@@ -31,6 +33,13 @@ func Test_StructFromEnv(t *testing.T) {
 	os.Setenv("testType_SliceValue_1", "bar")
 	os.Setenv("testType_SliceStruct_0_Value2", "45")
 	os.Setenv("testType_SliceStruct_0_Value3", "true")
+	os.Setenv("testType_SliceStruct_1_Value2", "48")
+	os.Setenv("testType_SliceStruct_1_Value3", "true")
+	os.Setenv("testType_MapValue_anything", "15")
+	os.Setenv("testType_MapStruct_12_Value2", "12")
+	os.Setenv("testType_MapStruct_12_Value3", "true")
+	os.Setenv("testType_MapStruct_foo_Value2", "2")
+	os.Setenv("testType_MapStruct_foo_Value3", "true")
 
 	err := StructFromEnv(result, "testType", "_")
 
@@ -48,6 +57,23 @@ func Test_StructFromEnv(t *testing.T) {
 		SliceStruct: []innerTestType{
 			innerTestType{
 				Value2: 45,
+				Value3: true,
+			},
+			innerTestType{
+				Value2: 48,
+				Value3: true,
+			},
+		},
+		MapValue: map[string]int64{
+			"anything": 15,
+		},
+		MapStruct: map[string]innerTestType{
+			"12": innerTestType{
+				Value2: 12,
+				Value3: true,
+			},
+			"foo": innerTestType{
+				Value2: 2,
 				Value3: true,
 			},
 		},

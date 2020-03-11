@@ -1,6 +1,8 @@
 package stringmap
 
-import "github.com/sergioifg94/auto-struct/pkg/generic"
+import (
+	"github.com/sergioifg94/auto-struct/pkg/generic"
+)
 
 // StructFromMap obtains a struct from a map[string]string, unflattens the
 // map allowing to obtain hierarchies
@@ -19,6 +21,18 @@ func StructFromMap(placeholder interface{}, name, levelSeparator string, source 
 			}
 
 			return false, nil
+		},
+
+		FilterKeys: func(predicate func(string) bool) ([]string, error) {
+			result := []string{}
+
+			for key := range source {
+				if predicate(key) {
+					result = append(result, key)
+				}
+			}
+
+			return result, nil
 		},
 	}
 

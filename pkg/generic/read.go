@@ -104,5 +104,61 @@ func GetComplexValue(outputType reflect.Type, prefix string, keyValue KeyValueRe
 		return result, nil
 	}
 
+	// If it's a map, discover all the map keys and recursively
+	// get their values
+	if outputKind == reflect.Map {
+		// Assert that only strings are used as keys
+		keyType := outputType.Key()
+		if keyType.Kind() != reflect.String {
+			return reflect.Zero(outputType), fmt.Errorf("Unsupported key type for map %s", keyType)
+		}
+
+		valueType := outputType.Elem()
+
+		// Get all the keys that are part of the map: the ones that begin
+		// with "<PREFIX><LS>"
+		keyPrefix := fmt.Sprintf("%s%s", prefix, levelSeparator)
+		mapFields, err := keyValue.FilterKeys(func(key string) bool {
+			return strings.HasPrefix(key, keyPrefix)
+		})
+		if err != nil {
+			return reflect.Zero(outputType), err
+		}
+
+		// Initialize the empty result map
+		result := reflect.MakeMap(outputType)
+
+		// Iterate through the fields (note, there might be multiple fields for
+		// the same map, if the value is complex). Once a new field is found,
+		// recursively get the whole value and add it to the map
+		for _, fullField := range mapFields {
+			fieldName := extractMapFieldName(prefix, levelSeparator, fullField)
+			fieldValue := reflect.ValueOf(fieldName)
+
+			if result.MapIndex(fieldValue) != *new(reflect.Value) {
+				continue
+			}
+
+			value, err := GetComplexValue(valueType, fmt.Sprintf("%s%s%s", prefix, levelSeparator, fieldName), keyValue, levelSeparator)
+			if err != nil {
+				return reflect.Zero(outputType), err
+			}
+
+			result.SetMapIndex(fieldValue, value)
+		}
+
+		return result, nil
+	}
+
 	return reflect.Zero(outputType), fmt.Errorf("Unsupported type: %s", outputType.String())
+}
+
+func extractMapFieldName(prefix, levelSeparator, key string) string {
+	// Remove the prefix from the full key
+	// "<FOO><LS><FIELD><LS><BAR>" -> "<FIELD><LS><BAR>"
+	withoutPrefix := strings.TrimPrefix(key, fmt.Sprintf("%s%s", prefix, levelSeparator))
+
+	// Split the remaining string key by the separator and take the first substring
+	// "<FIELD><LS><BAR>" -> [ "<FIELD>", "<BAR>" ] -> "<FIELD">
+	return strings.Split(withoutPrefix, levelSeparator)[0]
 }
