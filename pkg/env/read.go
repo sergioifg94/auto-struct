@@ -9,7 +9,17 @@ import (
 
 var extractKeyRegex *regexp.Regexp = regexp.MustCompile(`([^=]+)=.*$`)
 
-func StructFromEnv(placeholder interface{}, name, levelSeparator string) error {
+// NewEnvReader creates a KeyValueReader that reads values from the environment
+// variables using a given level separator. If the empty string is passed as
+// levelSeparator, defaults to "."
+//
+// Note that not all characters are allowed as part of environment variable so
+// they can't be used as level separator
+func NewEnvReader(levelSeparator string) *generic.KeyValueReader {
+	if levelSeparator == "" {
+		levelSeparator = "_"
+	}
+
 	// Lazy initialization of the environment variables list
 	var _environmentVariables []string
 	environmentVariables := func() []string {
@@ -51,7 +61,10 @@ func StructFromEnv(placeholder interface{}, name, levelSeparator string) error {
 		},
 	}
 
-	return generic.Struct(placeholder, name, envAccess, levelSeparator)
+	return &generic.KeyValueReader{
+		KeyValue:       envAccess,
+		LevelSeparator: levelSeparator,
+	}
 }
 
 // Extracts the key from a string in the format key=value, as returned in the

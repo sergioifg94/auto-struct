@@ -4,9 +4,14 @@ import (
 	"github.com/sergioifg94/auto-struct/pkg/generic"
 )
 
-// StructFromMap obtains a struct from a map[string]string, unflattens the
-// map allowing to obtain hierarchies
-func StructFromMap(placeholder interface{}, name, levelSeparator string, source map[string]string) error {
+// NewMapReader creates a KeyValueReader that reads values from a `map[string]string`
+// using a given level separator. If the empty string is passed as levelSeparator,
+// defaults to "."
+func NewMapReader(levelSeparator string, source map[string]string) *generic.KeyValueReader {
+	if levelSeparator == "" {
+		levelSeparator = "."
+	}
+
 	mapAccess := generic.KeyValueRetrieval{
 		Get: func(key string) (string, bool, error) {
 			value, ok := source[key]
@@ -36,5 +41,8 @@ func StructFromMap(placeholder interface{}, name, levelSeparator string, source 
 		},
 	}
 
-	return generic.Struct(placeholder, name, mapAccess, levelSeparator)
+	return &generic.KeyValueReader{
+		KeyValue:       mapAccess,
+		LevelSeparator: levelSeparator,
+	}
 }

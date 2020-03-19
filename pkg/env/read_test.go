@@ -21,8 +21,6 @@ type testType struct {
 }
 
 func Test_StructFromEnv(t *testing.T) {
-	result := &testType{}
-
 	os.Setenv("testType_Value1", "hello")
 	os.Setenv("testType_InnerValue_Value2", "12")
 	os.Setenv("testType_InnerValue_Value3", "true")
@@ -41,7 +39,10 @@ func Test_StructFromEnv(t *testing.T) {
 	os.Setenv("testType_MapStruct_foo_Value2", "2")
 	os.Setenv("testType_MapStruct_foo_Value3", "true")
 
-	err := StructFromEnv(result, "testType", "_")
+	result := &testType{}
+
+	reader := NewEnvReader("_")
+	err := reader.ReadValue("testType", result)
 
 	if err != nil {
 		t.Fatal(err)

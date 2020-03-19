@@ -7,6 +7,19 @@ import (
 	"strings"
 )
 
+// KeyValueReader knows how to read values from a key value collection
+type KeyValueReader struct {
+	KeyValue KeyValueRetrieval
+
+	LevelSeparator string
+}
+
+// ReadValue reads a value from the KeyValueReader given its name and stores
+// the result in a given pointer
+func (reader *KeyValueReader) ReadValue(name string, placeholder interface{}) error {
+	return Struct(placeholder, name, reader.KeyValue, reader.LevelSeparator)
+}
+
 // Struct obtains a struct via reflection given a key-value collection
 func Struct(placeholder interface{}, name string, keyValue KeyValueRetrieval, levelSeparator string) error {
 	result, err := GetComplexValue(reflect.TypeOf(placeholder).Elem(), name, keyValue, levelSeparator)
@@ -70,7 +83,7 @@ func GetComplexValue(outputType reflect.Type, prefix string, keyValue KeyValueRe
 		return result.Elem(), nil
 	}
 
-	// If it's a struct, recursively get its elements
+	// If it's a slice, recursively get its elements
 	if outputKind == reflect.Slice {
 		innerType := outputType.Elem()
 		result := reflect.MakeSlice(outputType, 0, 0)

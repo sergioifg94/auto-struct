@@ -16,3 +16,11 @@ type KeyValueRetrieval struct {
 	// FilterKeys creates a slice of keys that satisfy a given predicate
 	FilterKeys func(predicate func(string) bool) ([]string, error)
 }
+
+// KeyValueStorage is an abstraction of the strategy to store items in a key value
+// collection
+type KeyValueStorage struct {
+
+	// Set writes a value associated to a key
+	Set func(key, value string) error
+}
